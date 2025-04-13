@@ -1,26 +1,4 @@
 {
-    "repositories": [
-        "/path/to/your/repository1",
-        "/path/to/your/repository2"
-    ],
-    "work_hours": {
-        "start": "09:00",
-        "end": "18:00"
-    },
-    "commit_frequency": {
-        "min_per_day": 3,
-        "max_per_day": 8
-    },
-    "line_changes": {
-        "min_lines": 5,
-        "max_lines": 50
-    },
-    "file_extensions": [
-        ".py",
-        ".js",
-        ".html",
-        ".css",
-        ".md",
-        ".txt"
-    ]
-}
+  "repositories": ["/Users/chongjiantang/Documents/AVP/registrationdemo"],
+  "work_hours":
+  {"start": "09:00", "end": "18:00"}, "commits_per_day": {"min": 3, "max": 8}}
