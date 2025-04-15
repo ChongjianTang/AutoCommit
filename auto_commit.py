@@ -56,7 +56,6 @@ def main():
                 # File has merge conflicts (both modified during merge)
                 pass
 
-        git_commit(repo_path, "Test.")
 
 
 def load_config(config_path="config.json"):
@@ -133,14 +132,20 @@ def git_add(repo_path, file_path):
         return False
 
 
-def git_commit(repo_path, message):
+def git_commit(repo_path, file_path, message):
     try:
-        subprocess.run(
-            ["git", "-C", repo_path, "commit", "-m", message],
-            check=True
-        )
-        print(f"Committed with message: {message}")
-        return True
+        if file_path:
+            subprocess.run(
+                ["git", "-C", repo_path, "commit", "--only", file_path, "-m", message],
+                check=True
+            )
+        else:
+            subprocess.run(
+                ["git", "-C", repo_path, "commit", "-m", message],
+                check=True
+            )
+            print(f"Committed with message: {message}")
+            return True
     except subprocess.SubprocessError as e:
         print(f"Error in git_commit: {e}")
         return False
@@ -168,3 +173,4 @@ def process_python_files(repo_path, python_files):
 
 if __name__ == "__main__":
     main()
+    git_commit("/Users/chongjiantang/CommintsGenerator/CommintsGenerator", "auto_commit.py", "Commit Only")
