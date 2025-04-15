@@ -22,7 +22,37 @@ def main():
         return
 
     for repo_path in valid_repos:
-        has_uncommitted_changes(repo_path)
+        git_status_results = git_status(repo_path)
+        for result in git_status_results:
+            if result[0] == "M ":
+                # File is modified and staged (changes added to the index)
+                if result[1].endswith('.py'):
+                    process_python_files(repo_path, result[1])
+                pass
+            elif result[0] == " M":
+                # File is modified but not staged (changes in working directory only)
+                pass
+            elif result[0] == "MM":
+                # File is modified, some changes are staged and others are not staged
+                pass
+            elif result[0] == "A ":
+                # New file added to staging area
+                pass
+            elif result[0] == "R ":
+                # File has been renamed in the staging area
+                pass
+            elif result[0] == "D ":
+                # File is deleted in staging area
+                pass
+            elif result[0] == "C ":
+                # File has been copied in staging area
+                pass
+            elif result[0] == "??":
+                # Untracked file (not under version control yet)
+                pass
+            elif result[0] == "UU":
+                # File has merge conflicts (both modified during merge)
+                pass
 
 
 def load_config(config_path="config.json"):
@@ -70,7 +100,7 @@ def check_repositories(config):
     return valid_repos
 
 
-def has_uncommitted_changes(repo_path):
+def git_status(repo_path):
     try:
         result = subprocess.run(
             ["git", "-C", repo_path, "status", "--porcelain"],
@@ -78,10 +108,56 @@ def has_uncommitted_changes(repo_path):
             text=True,
             check=True
         )
-        print(result)
+        result = result.stdout.strip().split('\n')
+        result = [[r[:2], r[3:]] for r in result]
+        return result
     except subprocess.SubprocessError as e:
         print(f"Error in has_uncommitted_changes: {e}")
+        return None
+
+
+def git_add(repo_path, file_path):
+    try:
+        subprocess.run(
+            ["git", "-C", repo_path, "add", file_path],
+            check=True
+        )
+        print(f"Added to staging: {file_path}")
+        return True
+    except subprocess.SubprocessError as e:
+        print(f"Error in git_add: {e}")
         return False
+
+def git_commit(repo_path, message):
+    try:
+        subprocess.run(
+            ["git", "-C", repo_path, "commit", "-m", message],
+            check=True
+        )
+        print(f"Committed with message: {message}")
+        return True
+    except subprocess.SubprocessError as e:
+        print(f"Error in git_commit: {e}")
+        return False
+
+
+def git_diff_cached(repo_path, file_path):
+    try:
+        result = subprocess.run(
+            ["git", "-C", repo_path, "diff", "--cached", file_path],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return result.stdout
+    except subprocess.SubprocessError as e:
+        print(f"Error in git_diff_cached: {e}")
+        return None
+
+def process_python_files(repo_path, python_files):
+    temp = git_diff_cached(repo_path, python_files).split("@@")
+    for t in temp:
+        print(t)
 
 
 if __name__ == "__main__":
