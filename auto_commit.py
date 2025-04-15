@@ -34,6 +34,8 @@ def main():
                 pass
             elif result[0] == "MM":
                 # File is modified, some changes are staged and others are not staged
+                if result[1].endswith('.py'):
+                    process_python_files(repo_path, result[1])
                 pass
             elif result[0] == "A ":
                 # New file added to staging area
@@ -128,6 +130,7 @@ def git_add(repo_path, file_path):
         print(f"Error in git_add: {e}")
         return False
 
+
 def git_commit(repo_path, message):
     try:
         subprocess.run(
@@ -141,10 +144,10 @@ def git_commit(repo_path, message):
         return False
 
 
-def git_diff_cached(repo_path, file_path):
+def git_diff_staged(repo_path, file_path):
     try:
         result = subprocess.run(
-            ["git", "-C", repo_path, "diff", "--cached", file_path],
+            ["git", "-C", repo_path, "diff", "--staged", file_path],
             capture_output=True,
             text=True,
             check=True
@@ -154,9 +157,10 @@ def git_diff_cached(repo_path, file_path):
         print(f"Error in git_diff_cached: {e}")
         return None
 
+
 def process_python_files(repo_path, python_files):
-    temp = git_diff_cached(repo_path, python_files).split("@@")
-    for t in temp:
+    full_diff = git_diff_staged(repo_path, python_files)
+    for t in full_diff.split("@@"):
         print(t)
 
 
