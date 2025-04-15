@@ -56,6 +56,8 @@ def main():
                 # File has merge conflicts (both modified during merge)
                 pass
 
+        git_commit(repo_path, "Test.")
+
 
 def load_config(config_path="config.json"):
     try:
