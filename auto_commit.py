@@ -29,6 +29,9 @@ def main():
                 # File is modified and staged (changes added to the index)
                 if result[1].endswith('.py'):
                     process_python_files(repo_path, result[1])
+
+
+
                 pass
             elif result[0] == " M":
                 # File is modified but not staged (changes in working directory only)
@@ -185,9 +188,8 @@ def git_add_patch(repo_path, patch_content):
 
 
 def process_python_files(repo_path, python_files):
-    full_diff = git_diff_staged(repo_path, python_files)
-    for t in full_diff.split("@@"):
-        print(t)
+    full_diff = git_diff_staged(repo_path, python_files).split("\n")
+    print(full_diff)
 
 
 
