@@ -1,11 +1,14 @@
 {
-    "repositories": ["/Users/chongjiantang/Documents/AVP/registrationdemo"],
-    "work_hours": {
-        "start": "09:00",
-        "end": "18:00"
-    },
-    "commits_per_day": {
-        "min": 3,
-        "max": 8
-    }
+  "repositories": [
+    "/Users/chongjiantang/CommintsGenerator/CommintsGenerator",
+    ""
+  ],
+  "work_hours": {
+    "start": "09:00",
+    "end": "18:00"
+  },
+  "commits_per_day": {
+    "min": 3,
+    "max": 8
+  }
 }

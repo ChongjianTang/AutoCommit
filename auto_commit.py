@@ -10,6 +10,7 @@ import random
 import datetime
 import subprocess
 import json
+import tempfile
 
 
 def main():
@@ -165,12 +166,30 @@ def git_diff_staged(repo_path, file_path):
         return None
 
 
+def git_add_patch(repo_path, patch_content):
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+            temp_file.write(patch_content)
+            temp_path = temp_file.name
+
+        subprocess.run(
+            ["git", "-C", repo_path, "apply", "--staged", temp_path],
+            check=True
+        )
+
+        os.unlink(temp_path)
+        return True
+    except subprocess.SubprocessError as e:
+        print(f"Error in git_add_patch: {e}")
+        return False
+
+
 def process_python_files(repo_path, python_files):
     full_diff = git_diff_staged(repo_path, python_files)
     for t in full_diff.split("@@"):
         print(t)
 
 
+
 if __name__ == "__main__":
     main()
-    git_commit("/Users/chongjiantang/CommintsGenerator/CommintsGenerator", "auto_commit.py", "Commit Only")
