@@ -11,6 +11,7 @@ import datetime
 import subprocess
 import json
 import tempfile
+from tabnanny import check
 
 
 def main():
@@ -28,9 +29,7 @@ def main():
             if result[0] == "M ":
                 # File is modified and staged (changes added to the index)
                 if result[1].endswith('.py'):
-                    process_python_files(repo_path, result[1])
-
-
+                    total_diff, first_patch = get_staged_first_patch(repo_path, result[1])
 
                 pass
             elif result[0] == " M":
@@ -39,7 +38,7 @@ def main():
             elif result[0] == "MM":
                 # File is modified, some changes are staged and others are not staged
                 if result[1].endswith('.py'):
-                    process_python_files(repo_path, result[1])
+                    total_diff, first_patch = get_staged_first_patch(repo_path, result[1])
                 pass
             elif result[0] == "A ":
                 # New file added to staging area
@@ -59,7 +58,6 @@ def main():
             elif result[0] == "UU":
                 # File has merge conflicts (both modified during merge)
                 pass
-
 
 
 def load_config(config_path="config.json"):
@@ -187,10 +185,41 @@ def git_add_patch(repo_path, patch_content):
         return False
 
 
-def process_python_files(repo_path, python_files):
-    full_diff = git_diff_staged(repo_path, python_files).split("\n")
-    print(full_diff)
+def get_staged_first_patch(repo_path, python_files):
+    diff_output = git_diff_staged(repo_path, python_files)
+    print(diff_output)
+    diff_lines = diff_output.split("\n")
+    is_first_hunk = True
+    for i in range(len(diff_lines)):
+        line = diff_lines[i]
+        if line.startswith("@@"):
+            if is_first_hunk:
+                # TODO: Create Msg
+                is_first_hunk = False
+                pass
+            else:
+                diff_lines = diff_lines[:i]
+                break
 
+    return diff_output, "\n".join(diff_lines)
+
+
+def git_apply_patch(repo_path, patch_content):
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
+            temp_file.write(patch_content)
+            temp_path = temp_file.name
+
+        subprocess.run(
+            ["git", "-C", repo_path, "apply", "--staged", temp_path],
+            check=True
+        )
+        os.unlink(temp_path)
+        return True
+
+    except subprocess.SubprocessError as e:
+        print(f"Error in git_add_patch: {e}")
+        return False
 
 
 if __name__ == "__main__":
