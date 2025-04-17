@@ -21,6 +21,7 @@ def main():
 
     if not valid_repos:
         print("No valid repo, check config.json")
+
         return
 
     for repo_path in valid_repos:
@@ -34,9 +35,9 @@ def main():
 
                     git_restore_staged_file(repo_path, result[1])
 
-                    git_apply_patch(repo_path, first_patch)
+                    # git_apply_patch(repo_path, first_patch)
 
-                    git_commit(repo_path, result[1], "First patch test.")
+                    # git_commit(repo_path, result[1], "First patch test.")
 
                     git_apply_patch(repo_path, total_diff)
             elif result[0] == " M":
@@ -54,15 +55,6 @@ def main():
                     git_commit(repo_path, result[1], "First patch test.")
 
                     git_apply_patch(repo_path, total_diff)
-
-
-
-
-
-
-
-
-
 
             elif result[0] == "A ":
                 # New file added to staging area
@@ -211,6 +203,8 @@ def git_add_patch(repo_path, patch_content):
 
 def get_staged_first_patch(repo_path, python_files):
     diff_output = git_diff_staged(repo_path, python_files)
+    with open("b.patch", "w") as f:
+        f.write(diff_output)
     print(diff_output)
     diff_lines = diff_output.split("\n")
     is_first_hunk = True
@@ -226,17 +220,22 @@ def get_staged_first_patch(repo_path, python_files):
                 break
     print("DEBUG")
     print("\n".join(diff_lines))
-    return diff_output, "\n".join(diff_lines)
+    return diff_output, "\n".join(diff_lines) + "\n"
 
 
 def git_apply_patch(repo_path, patch_content):
     try:
+        print("补丁前20行：")
+        patch_lines = patch_content.split('\n')
+        for i, line in enumerate(patch_lines[:20]):
+            print(f"{i + 1}: {line}")
+
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
             temp_file.write(patch_content)
             temp_path = temp_file.name
 
         subprocess.run(
-            ["git", "-C", repo_path, "apply", "--staged", temp_path],
+            ["git", "-C", repo_path, "apply", "--cached", temp_path],
             check=True
         )
         os.unlink(temp_path)
