@@ -24,10 +24,6 @@ def main():
         # Hunk 1
         #
 
-
-
-
-
         return
 
     for repo_path in valid_repos:
