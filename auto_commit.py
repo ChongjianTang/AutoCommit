@@ -54,6 +54,8 @@ def main():
 
                     git_apply_patch(repo_path, total_diff)
 
+
+
             elif result[0] == "A ":
                 # New file added to staging area
                 pass
