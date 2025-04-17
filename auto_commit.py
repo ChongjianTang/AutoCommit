@@ -35,9 +35,9 @@ def main():
 
                     git_restore_staged_file(repo_path, result[1])
 
-                    # git_apply_patch(repo_path, first_patch)
+                    git_apply_patch(repo_path, first_patch)
 
-                    # git_commit(repo_path, result[1], "First patch test.")
+                    git_commit(repo_path, result[1], "First patch test.")
 
                     git_apply_patch(repo_path, total_diff)
             elif result[0] == " M":
@@ -240,6 +240,22 @@ def git_apply_patch(repo_path, patch_content):
         )
         os.unlink(temp_path)
         return True
+
+    # try:
+    #     print("补丁前20行：")
+    #     patch_lines = patch_content.split('\n')
+    #     for i, line in enumerate(patch_lines[:20]):
+    #         print(f"{i + 1}: {line}")
+    #
+    #     patch_file = "a"
+    #     with open(patch_file, "w") as f:
+    #         f.write(patch_content)
+    #
+    #     subprocess.run(
+    #         ["git", "-C", repo_path, "apply", "--cached", patch_file],
+    #         check=True
+    #     )
+    #     return True
 
     except subprocess.SubprocessError as e:
         print(f"Error in git_add_patch: {e}")
