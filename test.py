@@ -57,6 +57,7 @@ def main():
                     git_restore_staged_file(repo_path, result[1])
 
                     git_apply_patch(repo_path, first_patch)
+                    # TODO: Add some changes
 
                     git_stash_push(repo_path, keep_index=True)
                     git_commit(repo_path, result[1], "First patch test.")
@@ -138,6 +139,7 @@ def git_status(repo_path):
         result = [[r[:2], r[3:]] for r in result]
         return result
     except subprocess.SubprocessError as e:
+        # Change here
         print(f"Error in has_uncommitted_changes: {e}")
         return None
 
@@ -186,7 +188,7 @@ def git_diff_staged(repo_path, file_path):
     except subprocess.SubprocessError as e:
         print(f"Error in git_diff_cached: {e}")
         return None
-    # hunk 3 change
+    # hunk 3
 
 
 def git_add_patch(repo_path, patch_content):
