@@ -57,6 +57,13 @@ def main():
 
 
 
+
+
+
+
+
+
+
             elif result[0] == "A ":
                 # New file added to staging area
                 pass
@@ -217,7 +224,8 @@ def get_staged_first_patch(repo_path, python_files):
             else:
                 diff_lines = diff_lines[:i]
                 break
-
+    print("DEBUG")
+    print("\n".join(diff_lines))
     return diff_output, "\n".join(diff_lines)
 
 
