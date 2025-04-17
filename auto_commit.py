@@ -24,21 +24,12 @@ def main():
         # Hunk 1
         #
 
-
-
-
         return
 
     for repo_path in valid_repos:
         git_status_results = git_status(repo_path)
         # Hunk 2
         #
-
-
-
-
-
-
 
         for result in git_status_results:
 
@@ -196,16 +187,6 @@ def git_diff_staged(repo_path, file_path):
         print(f"Error in git_diff_cached: {e}")
         return None
     # hunk 3
-
-
-
-
-
-
-
-
-
-
 
 def git_add_patch(repo_path, patch_content):
     try:
