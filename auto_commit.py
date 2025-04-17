@@ -21,14 +21,14 @@ def main():
 
     if not valid_repos:
         print("No valid repo, check config.json")
-        # Hunk 1 change
+        # Hunk 1
         #
 
         return
 
     for repo_path in valid_repos:
         git_status_results = git_status(repo_path)
-        # Hunk 2 change
+        # Hunk 2
         #
 
         for result in git_status_results:
@@ -36,7 +36,7 @@ def main():
             if result[0] == "M ":
                 # File is modified and staged (changes added to the index)
                 if result[1].endswith('.py'):
-                    first_patch = get_staged_first_patch(repo_path, result[1])
+                    total_diff, first_patch = get_staged_first_patch(repo_path, result[1])
 
                     git_restore_staged_file(repo_path, result[1])
 
@@ -45,6 +45,8 @@ def main():
                     git_stash_push(repo_path, keep_index=True)
                     git_commit(repo_path, result[1], "First patch test.")
                     git_stash_pop(repo_path)
+
+                    git_apply_patch(repo_path, total_diff)
 
             elif result[0] == " M":
                 # File is modified but not staged (changes in working directory only)
@@ -52,7 +54,7 @@ def main():
             elif result[0] == "MM":
                 # File is modified, some changes are staged and others are not staged
                 if result[1].endswith('.py'):
-                    first_patch = get_staged_first_patch(repo_path, result[1])
+                    total_diff, first_patch = get_staged_first_patch(repo_path, result[1])
 
                     git_restore_staged_file(repo_path, result[1])
 
@@ -61,6 +63,8 @@ def main():
                     git_stash_push(repo_path, keep_index=True)
                     git_commit(repo_path, result[1], "First patch test.")
                     git_stash_pop(repo_path)
+
+                    git_apply_patch(repo_path, total_diff)
             elif result[0] == "A ":
                 # New file added to staging area
                 pass
@@ -161,7 +165,7 @@ def git_commit(repo_path, file_path, message):
         if file_path:
             command_args.append(file_path)
 
-        command_args += ["-m", message]
+        command_args.append(["-m", message])
 
         subprocess.run(
             command_args,
@@ -186,7 +190,7 @@ def git_diff_staged(repo_path, file_path):
     except subprocess.SubprocessError as e:
         print(f"Error in git_diff_cached: {e}")
         return None
-    # hunk 3 change
+    # hunk 3
 
 
 def git_add_patch(repo_path, patch_content):
@@ -222,7 +226,7 @@ def get_staged_first_patch(repo_path, python_files):
                 diff_lines = diff_lines[:i]
                 break
 
-    return "\n".join(diff_lines) + "\n"
+    return diff_output, "\n".join(diff_lines) + "\n"
 
 
 def git_apply_patch(repo_path, patch_content):
