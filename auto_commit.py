@@ -31,7 +31,13 @@ def main():
                 if result[1].endswith('.py'):
                     total_diff, first_patch = get_staged_first_patch(repo_path, result[1])
 
-                pass
+                    git_restore_staged_file(repo_path, result[1])
+
+                    git_apply_patch(repo_path, first_patch)
+
+                    git_commit(repo_path, result[1], "First patch test.")
+
+                    git_apply_patch(repo_path, total_diff)
             elif result[0] == " M":
                 # File is modified but not staged (changes in working directory only)
                 pass
@@ -39,7 +45,15 @@ def main():
                 # File is modified, some changes are staged and others are not staged
                 if result[1].endswith('.py'):
                     total_diff, first_patch = get_staged_first_patch(repo_path, result[1])
-                pass
+
+                    git_restore_staged_file(repo_path, result[1])
+
+                    git_apply_patch(repo_path, first_patch)
+
+                    git_commit(repo_path, result[1], "First patch test.")
+
+                    git_apply_patch(repo_path, total_diff)
+                    
             elif result[0] == "A ":
                 # New file added to staging area
                 pass
@@ -219,6 +233,19 @@ def git_apply_patch(repo_path, patch_content):
 
     except subprocess.SubprocessError as e:
         print(f"Error in git_add_patch: {e}")
+        return False
+
+
+def git_restore_staged_file(repo_path, file_path):
+    try:
+        subprocess.run(
+            ["git", "-C", repo_path, "restore", "--staged", file_path],
+            check=True
+        )
+        print(f"Restored staged file: {file_path}")
+        return True
+    except subprocess.SubprocessError as e:
+        print(f"Error in git_restore: {e}")
         return False
 
 
