@@ -36,31 +36,31 @@ def main():
             if result[0] == "M ":
                 # File is modified and staged (changes added to the index)
                 if result[1].endswith('.py'):
-                    total_diff, first_patch = get_staged_first_patch(repo_path, result[1])
+                    first_patch = get_staged_first_patch(repo_path, result[1])
 
                     git_restore_staged_file(repo_path, result[1])
 
                     git_apply_patch(repo_path, first_patch)
 
+                    git_stash_push(repo_path, keep_index=True)
                     git_commit(repo_path, result[1], "First patch test.")
+                    git_stash_pop(repo_path)
 
-                    git_apply_patch(repo_path, total_diff)
             elif result[0] == " M":
                 # File is modified but not staged (changes in working directory only)
                 pass
             elif result[0] == "MM":
                 # File is modified, some changes are staged and others are not staged
                 if result[1].endswith('.py'):
-                    total_diff, first_patch = get_staged_first_patch(repo_path, result[1])
+                    first_patch = get_staged_first_patch(repo_path, result[1])
 
                     git_restore_staged_file(repo_path, result[1])
 
                     git_apply_patch(repo_path, first_patch)
 
+                    git_stash_push(repo_path, keep_index=True)
                     git_commit(repo_path, result[1], "First patch test.")
-
-                    git_apply_patch(repo_path, total_diff)
-
+                    git_stash_pop(repo_path)
             elif result[0] == "A ":
                 # New file added to staging area
                 pass
@@ -157,18 +157,18 @@ def git_add(repo_path, file_path):
 
 def git_commit(repo_path, file_path, message):
     try:
+        command_args = ["git", "-C", repo_path, "commit"]
         if file_path:
-            subprocess.run(
-                ["git", "-C", repo_path, "commit", "--only", file_path, "-m", message],
-                check=True
-            )
-        else:
-            subprocess.run(
-                ["git", "-C", repo_path, "commit", "-m", message],
-                check=True
-            )
-            print(f"Committed with message: {message}")
-            return True
+            command_args.append(file_path)
+
+        command_args.append(["-m", message])
+
+        subprocess.run(
+            command_args,
+            check=True
+        )
+        print(f"Committed with message: {message}")
+        return True
     except subprocess.SubprocessError as e:
         print(f"Error in git_commit: {e}")
         return False
@@ -186,7 +186,8 @@ def git_diff_staged(repo_path, file_path):
     except subprocess.SubprocessError as e:
         print(f"Error in git_diff_cached: {e}")
         return None
-    # hunk 3
+    # hunk 3 change
+
 
 def git_add_patch(repo_path, patch_content):
     try:
@@ -208,9 +209,6 @@ def git_add_patch(repo_path, patch_content):
 
 def get_staged_first_patch(repo_path, python_files):
     diff_output = git_diff_staged(repo_path, python_files)
-    with open("b.patch", "w") as f:
-        f.write(diff_output)
-    print(diff_output)
     diff_lines = diff_output.split("\n")
     is_first_hunk = True
     for i in range(len(diff_lines)):
@@ -223,18 +221,12 @@ def get_staged_first_patch(repo_path, python_files):
             else:
                 diff_lines = diff_lines[:i]
                 break
-    print("DEBUG")
-    print("\n".join(diff_lines))
-    return diff_output, "\n".join(diff_lines) + "\n"
+
+    return "\n".join(diff_lines) + "\n"
 
 
 def git_apply_patch(repo_path, patch_content):
     try:
-        print("补丁前20行：")
-        patch_lines = patch_content.split('\n')
-        for i, line in enumerate(patch_lines[:20]):
-            print(f"{i + 1}: {line}")
-
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
             temp_file.write(patch_content)
             temp_path = temp_file.name
@@ -245,22 +237,6 @@ def git_apply_patch(repo_path, patch_content):
         )
         os.unlink(temp_path)
         return True
-
-    # try:
-    #     print("补丁前20行：")
-    #     patch_lines = patch_content.split('\n')
-    #     for i, line in enumerate(patch_lines[:20]):
-    #         print(f"{i + 1}: {line}")
-    #
-    #     patch_file = "a"
-    #     with open(patch_file, "w") as f:
-    #         f.write(patch_content)
-    #
-    #     subprocess.run(
-    #         ["git", "-C", repo_path, "apply", "--cached", patch_file],
-    #         check=True
-    #     )
-    #     return True
 
     except subprocess.SubprocessError as e:
         print(f"Error in git_add_patch: {e}")
@@ -277,6 +253,40 @@ def git_restore_staged_file(repo_path, file_path):
         return True
     except subprocess.SubprocessError as e:
         print(f"Error in git_restore: {e}")
+        return False
+
+
+def git_stash_push(repo_path, keep_index=False):
+    try:
+        command_args = ["git", "-C", repo_path, "stash", "push"]
+        if keep_index:
+            command_args.append("--keep-index")
+
+        subprocess.run(
+            command_args,
+            check=True
+        )
+        print("Saved working directory and index state WIP")
+        return True
+
+    except subprocess.SubprocessError as e:
+        print(f"Error in git_stash_push: {e}")
+        return False
+
+
+def git_stash_pop(repo_path):
+    try:
+        command_args = ["git", "-C", repo_path, "stash", "pop"]
+
+        subprocess.run(
+            command_args,
+            check=True
+        )
+        print("Git stash popped")
+        return True
+
+    except subprocess.SubprocessError as e:
+        print(f"Error in git_stash_push: {e}")
         return False
 
 
