@@ -161,7 +161,7 @@ def git_commit(repo_path, file_path, message):
         if file_path:
             command_args.append(file_path)
 
-        command_args.append(["-m", message])
+        command_args += ["-m", message]
 
         subprocess.run(
             command_args,
