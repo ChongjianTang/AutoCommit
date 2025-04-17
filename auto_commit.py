@@ -26,6 +26,7 @@ def main():
     for repo_path in valid_repos:
         git_status_results = git_status(repo_path)
         for result in git_status_results:
+
             if result[0] == "M ":
                 # File is modified and staged (changes added to the index)
                 if result[1].endswith('.py'):
@@ -129,7 +130,7 @@ def git_status(repo_path):
             text=True,
             check=True
         )
-        result = result.stdout.strip().split('\n')
+        result = result.stdout.strip('\n').split('\n')
         result = [[r[:2], r[3:]] for r in result]
         return result
     except subprocess.SubprocessError as e:
