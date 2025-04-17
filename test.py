@@ -21,14 +21,18 @@ def main():
 
     if not valid_repos:
         print("No valid repo, check config.json")
-        # Hunk 1 change
+        # Hunk 1
         #
+
+
+
+
 
         return
 
     for repo_path in valid_repos:
         git_status_results = git_status(repo_path)
-        # Hunk 2 change
+        # Hunk 2
         #
 
         for result in git_status_results:
