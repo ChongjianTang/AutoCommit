@@ -22,6 +22,7 @@ def main():
     if not valid_repos:
         print("No valid repo, check config.json")
         # Hunk 1
+        #
 
 
 
@@ -31,6 +32,8 @@ def main():
     for repo_path in valid_repos:
         git_status_results = git_status(repo_path)
         # Hunk 2
+        #
+
 
 
 
@@ -193,6 +196,11 @@ def git_diff_staged(repo_path, file_path):
         print(f"Error in git_diff_cached: {e}")
         return None
     # hunk 3
+
+
+
+
+
 
 
 
