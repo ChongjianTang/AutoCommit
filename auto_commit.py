@@ -53,7 +53,7 @@ def main():
                     git_commit(repo_path, result[1], "First patch test.")
 
                     git_apply_patch(repo_path, total_diff)
-                    
+
             elif result[0] == "A ":
                 # New file added to staging area
                 pass
